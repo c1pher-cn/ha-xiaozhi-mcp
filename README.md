@@ -1,4 +1,4 @@
-![1edf354c28eccf795adeead700378cf1](https://github.com/user-attachments/assets/2641133e-78b5-4000-b602-a49303cf8ecc)# ha-xiaozhi-mcp
+# ha-xiaozhi-mcp
 homeassistant mcpserver的临时中转方案
 
 下载全部文件到你的环境中
