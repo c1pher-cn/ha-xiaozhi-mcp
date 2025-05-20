@@ -121,16 +121,22 @@ class HassTargetModel(BaseModel):
     type: Literal[
         'turn_on', 'turn_off',
         'brightness_up', 'brightness_down', 'brightness_value',
-        'volume_up', 'volume_down', 'volume_set',
+        'volume_up', 'volume_down', 'volume_set','set_temperature',
         'set_kelvin', 'set_color',
         'pause', 'continue', 'volume_mute'
-    ] = Field(..., description="操作类型对应：打开设备:turn_on,关闭设备:turn_off,增加亮度:brightness_up,降低亮度:brightness_down,设置亮度:brightness_value,增加音量:volume_up,降低音>量:volume_down,设置音量:volume_set,设置色温:set_kelvin,设置颜色:set_color,设备暂停:pause,设备继续:continue,静音/取消静音:volume_mute")
+    ] = Field(..., description="操作类型对应：打开设备:turn_on,关闭设备:turn_off,增加亮度:brightness_up,降低亮度:brightness_down,设置亮度:brightness_value,增加音量:volume_up,降低音>量:volume_down,设置音量:volume_set,设置温度:set_temperature,设置色温:set_kelvin,设置颜色:set_color,设备暂停:pause,设备继续:continue,静音/取消静音:volume_mute")
 
     input: Optional[int] = Field(
         None,
         ge=0,
         le=100,
         description="设置值(0-100)，仅在brightness_value/volume_set时需要"
+    )
+    input: Optional[int] = Field(
+        None,
+        ge=17,
+        le=30,
+        description="设置值(17-30)，仅在set_temperature时需要"
     )
 
     is_muted: Optional[bool] = Field(
@@ -176,6 +182,11 @@ def hass_set_state(entity_id: str, target: HassTargetModel) -> Dict[str, Any]:
     ...     entity_id="light.kitchen",
     ...     target={"type": "set_color", "rgb_color": [255, 100, 0]}
     ... )
+    >>> # 设置空调温度
+    >>> hass_set_state(
+    ...     entity_id="climate.ac",
+    ...     target={"type": "set_temperature", "input": 26}
+    ... )
     """
     # 执行操作
     try:
@@ -193,6 +204,7 @@ def hass_set_state(entity_id: str, target: HassTargetModel) -> Dict[str, Any]:
             "brightness_up": _handle_brightness_up,
             "brightness_down": _handle_brightness_down,
             "brightness_value": _handle_brightness_value,
+            "set_temperature": _handle_set_temperature_value,
             "set_color": _handle_set_color,
             "set_kelvin": _handle_set_kelvin,
             "volume_up": _handle_volume_up,
@@ -250,7 +262,13 @@ def _handle_brightness_down(domain: str, entity_id: str, state: Dict) -> Dict:
         params={"brightness_step_pct": -10},
         description="亮度已调低"
     )
-
+def _handle_set_temperature_value(domain: str, entity_id: str, state: Dict) -> Dict:
+    """设置温度值"""
+    return _call_service(
+        domain, "set_temperature", entity_id,
+        params={"temperature": state["input"]},
+        description=f"温度已设置为{state['input']}%"
+    )
 def _handle_brightness_value(domain: str, entity_id: str, state: Dict) -> Dict:
     """设置亮度值"""
     return _call_service(
