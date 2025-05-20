@@ -3,9 +3,8 @@ import logging
 import requests
 from typing import Dict, Any, Literal, Optional, List
 from pydantic import BaseModel, Field, validator
-from .conf import(
-    HASS_CONFIG
-)
+from conf import HASS_CONFIG
+
 # 初始化日志
 logger = logging.getLogger('hass_device_query')
 
