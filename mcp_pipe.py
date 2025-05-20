@@ -17,9 +17,8 @@ import signal
 import sys
 import random
 from dotenv import load_dotenv
-from .conf import (
-    MCP_ENDPOINT
-)
+from conf import MCP_ENDPOINT
+
 
 
 mcp_url = MCP_ENDPOINT
